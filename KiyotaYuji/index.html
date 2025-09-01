@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pergunta Importante</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            margin: 0 10px;
+        }
+        #yesButton {
+            background-color: #4CAF50;
+        }
+        #noButton {
+            background-color: #f44336;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Você quer namorar comigo?</h1>
+        <div class="buttons">
+            <button id="yesButton">Sim</button>
+        </div>
+    </div>
+    <button id="noButton">Não</button>
+
+    <script>
+        const yesButton = document.getElementById('yesButton');
+        const noButton = document.getElementById('noButton');
+
+        yesButton.addEventListener('click', () => {
+            alert('Que bom! Estou muito feliz!');
+        });
+
+        function moveButton() {
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            const newX = Math.random() * (viewportWidth - noButton.offsetWidth);
+            const newY = Math.random() * (viewportHeight - noButton.offsetHeight);
+
+            noButton.style.left = `${newX}px`;
+            noButton.style.top = `${newY}px`;
+        }
+
+        // AGORA O BOTÃO SÓ SE MOVE QUANDO É CLICADO
+        noButton.addEventListener('click', moveButton);
+
+        // MANTEMOS ESTA LINHA PARA QUE ELE JÁ COMECE EM UM LUGAR ALEATÓRIO
+        moveButton();
+    </script>
+</body>
+</html>

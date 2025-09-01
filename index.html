@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pergunta Importante</title>
     <style>
+        /* CSS: A parte de estilo */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -13,8 +14,9 @@
             height: 100vh;
             background-color: #f0f8ff;
             margin: 0;
-            overflow: hidden;
+            overflow: hidden; 
         }
+
         .container {
             text-align: center;
             background-color: white;
@@ -22,13 +24,16 @@
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+
         h1 {
             font-size: 24px;
             color: #333;
         }
+
         .buttons {
             margin-top: 20px;
         }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -37,13 +42,18 @@
             border-radius: 5px;
             color: white;
             margin: 0 10px;
+            /* Transição suave para a mudança de posição */
+            transition: top 0.3s ease, left 0.3s ease;
         }
+
         #yesButton {
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Verde */
         }
+
         #noButton {
-            background-color: #f44336;
-            position: absolute;
+            background-color: #f44336; /* Vermelho */
+            /* A MUDANÇA: Removemos o 'position: absolute' daqui.
+               Agora ele começará como um botão normal. */
         }
     </style>
 </head>
@@ -52,13 +62,15 @@
         <h1>Você quer namorar comigo?</h1>
         <div class="buttons">
             <button id="yesButton">Sim</button>
+            <button id="noButton">Não</button>
         </div>
     </div>
-    <button id="noButton">Não</button>
 
     <script>
+        // JavaScript: A inteligência da página
         const yesButton = document.getElementById('yesButton');
         const noButton = document.getElementById('noButton');
+        let isFirstClick = true; // Uma variável para controlar o primeiro clique
 
         yesButton.addEventListener('click', () => {
             alert('Que bom! Estou muito feliz!');
@@ -75,11 +87,22 @@
             noButton.style.top = `${newY}px`;
         }
 
-        // AGORA O BOTÃO SÓ SE MOVE QUANDO É CLICADO
-        noButton.addEventListener('click', moveButton);
+        // A MUDANÇA: Criamos uma nova função para o clique no "Não"
+        function handleNoClick() {
+            // Se for o primeiro clique...
+            if (isFirstClick) {
+                // ...adiciona o estilo que permite que ele "flutue" pela página
+                noButton.style.position = 'absolute';
+                isFirstClick = false; // E marca que não é mais o primeiro clique
+            }
+            
+            // E então, move o botão (para o primeiro e todos os cliques seguintes)
+            moveButton();
+        }
 
-        // MANTEMOS ESTA LINHA PARA QUE ELE JÁ COMECE EM UM LUGAR ALEATÓRIO
-        moveButton();
+        noButton.addEventListener('click', handleNoClick);
+
+        // A MUDANÇA: Removemos a chamada que movia o botão no início
     </script>
 </body>
 </html>

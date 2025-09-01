@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pergunta Importante</title>
     <style>
-        /* CSS: A parte de estilo */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -16,7 +15,6 @@
             margin: 0;
             overflow: hidden; 
         }
-
         .container {
             text-align: center;
             background-color: white;
@@ -24,16 +22,8 @@
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-
-        h1 {
-            font-size: 24px;
-            color: #333;
-        }
-
-        .buttons {
-            margin-top: 20px;
-        }
-
+        h1 { font-size: 24px; color: #333; }
+        .buttons { margin-top: 20px; }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -42,18 +32,13 @@
             border-radius: 5px;
             color: white;
             margin: 0 10px;
-            /* Transição suave para a mudança de posição */
             transition: top 0.3s ease, left 0.3s ease;
         }
-
-        #yesButton {
-            background-color: #4CAF50; /* Verde */
-        }
-
+        #yesButton { background-color: #4CAF50; }
         #noButton {
-            background-color: #f44336; /* Vermelho */
-            /* A MUDANÇA: Removemos o 'position: absolute' daqui.
-               Agora ele começará como um botão normal. */
+            background-color: #f44336;
+            /* IMPORTANTE: Note que NÃO HÁ 'position: absolute' para o #noButton aqui. */
+            /* Isso garante que ele comece como um botão normal. */
         }
     </style>
 </head>
@@ -67,10 +52,9 @@
     </div>
 
     <script>
-        // JavaScript: A inteligência da página
         const yesButton = document.getElementById('yesButton');
         const noButton = document.getElementById('noButton');
-        let isFirstClick = true; // Uma variável para controlar o primeiro clique
+        let isFirstClick = true; 
 
         yesButton.addEventListener('click', () => {
             alert('Que bom! Estou muito feliz!');
@@ -79,30 +63,24 @@
         function moveButton() {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            
             const newX = Math.random() * (viewportWidth - noButton.offsetWidth);
             const newY = Math.random() * (viewportHeight - noButton.offsetHeight);
-
             noButton.style.left = `${newX}px`;
             noButton.style.top = `${newY}px`;
         }
-
-        // A MUDANÇA: Criamos uma nova função para o clique no "Não"
+        
         function handleNoClick() {
-            // Se for o primeiro clique...
+            // IMPORTANTE: A mágica acontece aqui, adicionando a posição absoluta SÓ no primeiro clique.
             if (isFirstClick) {
-                // ...adiciona o estilo que permite que ele "flutue" pela página
                 noButton.style.position = 'absolute';
-                isFirstClick = false; // E marca que não é mais o primeiro clique
+                isFirstClick = false; 
             }
-            
-            // E então, move o botão (para o primeiro e todos os cliques seguintes)
             moveButton();
         }
 
         noButton.addEventListener('click', handleNoClick);
 
-        // A MUDANÇA: Removemos a chamada que movia o botão no início
+        // IMPORTANTE: A linha que movia o botão no início foi REMOVIDA daqui.
     </script>
 </body>
 </html>

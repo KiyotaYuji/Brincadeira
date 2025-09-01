@@ -35,11 +35,7 @@
             transition: top 0.3s ease, left 0.3s ease;
         }
         #yesButton { background-color: #4CAF50; }
-        #noButton {
-            background-color: #f44336;
-            /* IMPORTANTE: Note que NÃO HÁ 'position: absolute' para o #noButton aqui. */
-            /* Isso garante que ele comece como um botão normal. */
-        }
+        #noButton { background-color: #f44336; }
     </style>
 </head>
 <body>
@@ -58,6 +54,14 @@
 
         yesButton.addEventListener('click', () => {
             alert('Que bom! Estou muito feliz!');
+            
+            // ALTERAÇÃO IMPORTANTE ABAIXO:
+            // Esta função enviará o sinal para a sua ponte no Pipedream.
+            const pipedreamUrl = "https://eoz1743sh3cu2qq.m.pipedream.net"; // <-- COLE A URL DO PASSO 5
+
+            fetch(pipedreamUrl, { method: 'POST' })
+                .then(response => console.log("Sinal de alerta enviado com sucesso!"))
+                .catch(error => console.error('Erro ao enviar o sinal:', error));
         });
 
         function moveButton() {
@@ -70,7 +74,6 @@
         }
         
         function handleNoClick() {
-            // IMPORTANTE: A mágica acontece aqui, adicionando a posição absoluta SÓ no primeiro clique.
             if (isFirstClick) {
                 noButton.style.position = 'absolute';
                 isFirstClick = false; 
@@ -79,8 +82,6 @@
         }
 
         noButton.addEventListener('click', handleNoClick);
-
-        // IMPORTANTE: A linha que movia o botão no início foi REMOVIDA daqui.
     </script>
 </body>
 </html>

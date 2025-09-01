@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pergunta Importante</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,7 +23,13 @@
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            z-index: 1;
+            z-index: 10; /* Acima da celebração inicial */
+            transition: opacity 1s ease-out, transform 1s ease-out; /* Transição para sumir */
+        }
+        .container.hidden {
+            opacity: 0;
+            transform: translateY(-50px);
+            pointer-events: none; /* Impede cliques em elementos invisíveis */
         }
         h1 { font-size: 24px; color: #333; }
         .buttons { margin-top: 20px; }
@@ -39,7 +46,39 @@
         #yesButton { background-color: #4CAF50; }
         #noButton { background-color: #f44336; }
 
-        /* --- ESTILOS PARA A TELA DE CELEBRAÇÃO --- */
+        /* --- ESTILOS PARA A MENSAGEM ROMÂNTICA NA TELA --- */
+        .romantic-message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7); /* Fundo um pouco escuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out;
+            z-index: 2000; /* Acima de tudo */
+        }
+        .romantic-message-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .romantic-message {
+            color: white;
+            font-family: 'Brush Script MT', cursive;
+            font-size: 3.5em; /* Tamanho da fonte da mensagem */
+            text-align: center;
+            padding: 20px;
+            max-width: 80%;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            line-height: 1.3;
+        }
+
+
+        /* --- ESTILOS PARA A TELA DE CELEBRAÇÃO (IMAGEM + NÓS + CORAÇÕES) --- */
         .celebration-overlay {
             position: fixed;
             top: 0;
@@ -54,7 +93,7 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.5s ease-in-out;
-            z-index: 1000;
+            z-index: 1000; /* Abaixo da mensagem romântica, mas acima da pergunta */
         }
         .celebration-overlay.active {
             opacity: 1;
@@ -74,17 +113,19 @@
             margin-top: -150px;
             position: relative;
         }
-        .heart {
+        /* Corações para a imagem de celebração */
+        .heart-float {
             position: absolute;
             font-size: 2em;
-            color: red;
+            color: #ff69b4; /* Pink */
             opacity: 0;
-            animation: floatUp 4s ease-in forwards;
-            -webkit-user-select: none; /* Impede seleção de texto */
+            animation: floatUpHearts 4s ease-in forwards;
+            -webkit-user-select: none;
             -ms-user-select: none;
             user-select: none;
+            pointer-events: none; /* Não interfere com cliques */
         }
-        @keyframes floatUp {
+        @keyframes floatUpHearts {
             0% {
                 transform: translateY(0) scale(1);
                 opacity: 1;
@@ -97,12 +138,16 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="mainContainer">
         <h1>Você quer namorar comigo?</h1>
         <div class="buttons">
             <button id="yesButton">Sim</button>
             <button id="noButton">Não</button>
         </div>
+    </div>
+
+    <div class="romantic-message-overlay" id="romanticMessageOverlay">
+        <p class="romantic-message">Meu coração já tinha um dono: você. Agora, minha alma encontrou o mesmo destino.</p>
     </div>
 
     <div class="celebration-overlay" id="celebrationOverlay">
@@ -113,10 +158,58 @@
     <script>
         const yesButton = document.getElementById('yesButton');
         const noButton = document.getElementById('noButton');
+        const mainContainer = document.getElementById('mainContainer');
+        const romanticMessageOverlay = document.getElementById('romanticMessageOverlay');
+        const celebrationOverlay = document.getElementById('celebrationOverlay');
         let isFirstClick = true; 
 
+        // --- FUNÇÕES DE ANIMAÇÃO ---
+        // Função para lançar os fogos de artifício
+        function startFireworks() {
+            var duration = 4 * 1000; // Duração dos fogos em ms
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1001 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+            return interval; // Retorna o ID do intervalo para poder limpá-lo
+        }
+
+        // Função para criar corações flutuantes para a celebração da imagem
+        let heartsInterval;
+        function startFloatingHearts() {
+            heartsInterval = setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart-float');
+                heart.innerHTML = '♥';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = Math.random() * 2 + 3 + 's'; // Duração entre 3s e 5s
+                document.body.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 5000); // Remove o coração depois de sua animação
+            }, 300); // Cria um coração a cada 300ms
+        }
+
+        // --- EVENTO DE CLIQUE NO BOTÃO SIM ---
         yesButton.addEventListener('click', () => {
-            // 1. Envia a notificação para o Discord secretamente em segundo plano
+            // 1. Esconde a caixa da pergunta e os botões
+            mainContainer.classList.add('hidden');
+            
+            // 2. Envia a notificação para o Discord em segundo plano
             const urlParams = new URLSearchParams(window.location.search);
             const nomeAlvo = urlParams.get('quem') || 'Alguem Desconhecido';
             const pipedreamUrl = "https://eoz1743sh3cu2qq.m.pipedream.net"; 
@@ -129,34 +222,29 @@
             .then(response => console.log("Notificação enviada para: " + nomeAlvo))
             .catch(error => console.error('Erro ao enviar notificação:', error));
 
-            // 2. Mostra a mensagem romântica PRIMEIRO
-            alert("Meu coração já tinha um dono: você. Agora, minha alma encontrou o mesmo destino.");
+            // 3. Inicia os fogos de artifício e mostra a mensagem romântica
+            const fireworksInterval = startFireworks(); // Lança os fogos
+            romanticMessageOverlay.classList.add('active'); // Mostra a mensagem
 
-            // 3. Inicia a celebração visual
-            const celebrationOverlay = document.getElementById('celebrationOverlay');
-            celebrationOverlay.classList.add('active');
-
-            // Função para criar a animação de corações
-            const createHearts = setInterval(() => {
-                const heart = document.createElement('div');
-                heart.classList.add('heart');
-                heart.innerHTML = '♥';
-                heart.style.left = Math.random() * 100 + 'vw';
-                heart.style.animationDuration = Math.random() * 2 + 3 + 's';
-                document.body.appendChild(heart);
-                
-                setTimeout(() => {
-                    heart.remove();
-                }, 5000);
-            }, 300);
-
-            // 4. Para a celebração e esconde a tela depois de um tempo
+            // 4. Após alguns segundos (ex: 3s), esconde a mensagem e mostra a imagem com corações
             setTimeout(() => {
-                celebrationOverlay.classList.remove('active');
-                clearInterval(createHearts);
-            }, 5000); // A celebração dura 5 segundos
+                romanticMessageOverlay.classList.remove('active'); // Esconde a mensagem
+                clearInterval(fireworksInterval); // Para os fogos
+
+                celebrationOverlay.classList.add('active'); // Mostra a imagem com "Nós"
+                startFloatingHearts(); // Inicia os corações
+
+                // 5. Após mais alguns segundos (ex: 5s para imagem+corações), finaliza a celebração
+                setTimeout(() => {
+                    celebrationOverlay.classList.remove('active'); // Esconde a imagem
+                    clearInterval(heartsInterval); // Para de criar corações
+                    // Aqui você pode redirecionar para outra página ou simplesmente deixar a tela vazia.
+                    // window.location.href = "sua_outra_pagina.html"; 
+                }, 5000); // Imagem e corações duram 5 segundos
+            }, 3000); // Mensagem romântica e fogos duram 3 segundos antes da imagem
         });
 
+        // --- FUNÇÕES DO BOTÃO NÃO (continuam as mesmas) ---
         function moveButton() {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;

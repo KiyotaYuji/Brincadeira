@@ -14,6 +14,7 @@
             background-color: #f0f8ff;
             margin: 0;
             overflow: hidden; 
+            position: relative;
         }
         .container {
             text-align: center;
@@ -21,6 +22,7 @@
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1;
         }
         h1 { font-size: 24px; color: #333; }
         .buttons { margin-top: 20px; }
@@ -36,6 +38,62 @@
         }
         #yesButton { background-color: #4CAF50; }
         #noButton { background-color: #f44336; }
+
+        /* --- ESTILOS PARA A TELA DE CELEBRAÇÃO --- */
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 1000;
+        }
+        .celebration-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .celebration-overlay img {
+            max-width: 90%;
+            max-height: 60vh;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.7);
+        }
+        .celebration-overlay h2 {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 8em;
+            color: white;
+            text-shadow: 3px 3px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000, 2px 2px 0px #000;
+            margin-top: -150px;
+            position: relative;
+        }
+        .heart {
+            position: absolute;
+            font-size: 2em;
+            color: red;
+            opacity: 0;
+            animation: floatUp 4s ease-in forwards;
+            -webkit-user-select: none; /* Impede seleção de texto */
+            -ms-user-select: none;
+            user-select: none;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(0.5);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -47,47 +105,70 @@
         </div>
     </div>
 
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <img src="gatos.jpg" alt="Nós">
+        <h2>Nós</h2>
+    </div>
+
     <script>
         const yesButton = document.getElementById('yesButton');
         const noButton = document.getElementById('noButton');
         let isFirstClick = true; 
 
-        // --- CÓDIGO ATUALIZADO AQUI ---
         yesButton.addEventListener('click', () => {
-            alert('Que bom! Estou muito feliz!');
-            
-            // 1. Pega o nome da pessoa a partir do link da página
+            // 1. Envia a notificação para o Discord secretamente em segundo plano
             const urlParams = new URLSearchParams(window.location.search);
-            const nomeAlvo = urlParams.get('quem') || 'Alguem Desconhecido'; // Se não tiver nome no link, usa um padrão
-
-            // 2. Cole a URL do seu trigger do Pipedream aqui
+            const nomeAlvo = urlParams.get('quem') || 'Alguem Desconhecido';
             const pipedreamUrl = "https://eoz1743sh3cu2qq.m.pipedream.net"; 
 
-            // 3. Envia o nome capturado para o Pipedream
             fetch(pipedreamUrl, { 
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ "destinatario": nomeAlvo }) // Envia o nome no corpo da requisição
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ "destinatario": nomeAlvo })
             })
-            .then(response => console.log("Sinal de alerta enviado com sucesso para: " + nomeAlvo))
-            .catch(error => console.error('Erro ao enviar o sinal:', error));
+            .then(response => console.log("Notificação enviada para: " + nomeAlvo))
+            .catch(error => console.error('Erro ao enviar notificação:', error));
+
+            // 2. Mostra a mensagem romântica PRIMEIRO
+            alert("Meu coração já tinha um dono: você. Agora, minha alma encontrou o mesmo destino.");
+
+            // 3. Inicia a celebração visual
+            const celebrationOverlay = document.getElementById('celebrationOverlay');
+            celebrationOverlay.classList.add('active');
+
+            // Função para criar a animação de corações
+            const createHearts = setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '♥';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = Math.random() * 2 + 3 + 's';
+                document.body.appendChild(heart);
+                
+                setTimeout(() => {
+                    heart.remove();
+                }, 5000);
+            }, 300);
+
+            // 4. Para a celebração e esconde a tela depois de um tempo
+            setTimeout(() => {
+                celebrationOverlay.classList.remove('active');
+                clearInterval(createHearts);
+            }, 5000); // A celebração dura 5 segundos
         });
-        // --- FIM DA ATUALIZAÇÃO ---
 
         function moveButton() {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             const newX = Math.random() * (viewportWidth - noButton.offsetWidth);
             const newY = Math.random() * (viewportHeight - noButton.offsetHeight);
+            noButton.style.position = 'absolute';
             noButton.style.left = `${newX}px`;
             noButton.style.top = `${newY}px`;
         }
         
         function handleNoClick() {
             if (isFirstClick) {
-                noButton.style.position = 'absolute';
                 isFirstClick = false; 
             }
             moveButton();

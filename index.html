@@ -52,17 +52,29 @@
         const noButton = document.getElementById('noButton');
         let isFirstClick = true; 
 
+        // --- CÓDIGO ATUALIZADO AQUI ---
         yesButton.addEventListener('click', () => {
             alert('Que bom! Estou muito feliz!');
             
-            // ALTERAÇÃO IMPORTANTE ABAIXO:
-            // Esta função enviará o sinal para a sua ponte no Pipedream.
-            const pipedreamUrl = "https://eoz1743sh3cu2qq.m.pipedream.net"; // <-- COLE A URL DO PASSO 5
+            // 1. Pega o nome da pessoa a partir do link da página
+            const urlParams = new URLSearchParams(window.location.search);
+            const nomeAlvo = urlParams.get('quem') || 'Alguem Desconhecido'; // Se não tiver nome no link, usa um padrão
 
-            fetch(pipedreamUrl, { method: 'POST' })
-                .then(response => console.log("Sinal de alerta enviado com sucesso!"))
-                .catch(error => console.error('Erro ao enviar o sinal:', error));
+            // 2. Cole a URL do seu trigger do Pipedream aqui
+            const pipedreamUrl = "https://eoz1743sh3cu2qq.m.pipedream.net"; 
+
+            // 3. Envia o nome capturado para o Pipedream
+            fetch(pipedreamUrl, { 
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "destinatario": nomeAlvo }) // Envia o nome no corpo da requisição
+            })
+            .then(response => console.log("Sinal de alerta enviado com sucesso para: " + nomeAlvo))
+            .catch(error => console.error('Erro ao enviar o sinal:', error));
         });
+        // --- FIM DA ATUALIZAÇÃO ---
 
         function moveButton() {
             const viewportWidth = window.innerWidth;
